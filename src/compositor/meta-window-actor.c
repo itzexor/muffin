@@ -1333,6 +1333,10 @@ meta_window_actor_set_redirected (MetaWindowActor *self, gboolean state)
       meta_error_trap_pop (display);
       self->priv->unredirected = TRUE;
     }
+
+    if (g_getenv("MUFFIN_DEBUG_UNREDIRECTION") != NULL) {
+      g_warning ("Unredirected state for window %s changed: %s", self->priv->window->desc, self->priv->unredirected ? "true" : "false");
+    }
 }
 
 LOCAL_SYMBOL void

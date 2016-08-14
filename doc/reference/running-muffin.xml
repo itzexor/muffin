@@ -57,6 +57,12 @@
           </listitem>
         </varlistentry>
         <varlistentry>
+          <term>MUFFIN_DEBUG_UNREDIRECTION</term>
+          <listitem>
+            <para>Log a warning each time a window's unredirection state changes.</para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
           <term>MUFFIN_SYNC</term>
           <listitem>
             <para>Call XSync after each X call.</para>
