@@ -129,6 +129,9 @@ void            _clutter_stage_presented                (ClutterStage      *stag
                                                          CoglFrameEvent     frame_event,
                                                          ClutterFrameInfo  *frame_info);
 
+void            clutter_stage_queue_actor_relayout      (ClutterStage *stage,
+                                                         ClutterActor *actor);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
