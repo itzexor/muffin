@@ -1580,22 +1580,6 @@ meta_window_actor_should_unredirect (MetaWindowActor *self)
   return FALSE;
 }
 
-static void
-fullscreen_sync_toggle (MetaWindowActor *self,
-                        gboolean         state)
-{
-  MetaSyncMethod method = meta_prefs_get_sync_method ();
-
-  if (meta_prefs_get_unredirect_fullscreen_windows () &&
-      method != META_SYNC_NONE)
-    {
-      clutter_stage_x11_update_sync_state (
-        self->priv->window->display->compositor->stage,
-        state ? method : META_SYNC_NONE
-      );
-    }
-}
-
 LOCAL_SYMBOL void
 meta_window_actor_set_redirected (MetaWindowActor *self, gboolean state)
 {
@@ -1614,12 +1598,10 @@ meta_window_actor_set_redirected (MetaWindowActor *self, gboolean state)
   if (state)
     {
       XCompositeRedirectWindow (xdisplay, xwin, CompositeRedirectManual);
-      fullscreen_sync_toggle (self, TRUE);
       priv->unredirected = FALSE;
     }
   else
     {
-      fullscreen_sync_toggle (self, FALSE);
       meta_window_actor_detach (self);
       XCompositeUnredirectWindow (xdisplay, xwin, CompositeRedirectManual);
       priv->repaint_scheduled = TRUE;
