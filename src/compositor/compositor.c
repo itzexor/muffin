@@ -1624,10 +1624,3 @@ meta_compositor_get_cogl_context (void)
 {
   return compositor_global->context;
 }
-
-void
-meta_compositor_update_sync_state (MetaCompositor *compositor,
-                                   MetaSyncMethod  method)
-{
-  clutter_stage_x11_update_sync_state (compositor->stage, method);
-}

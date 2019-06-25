@@ -60,7 +60,7 @@ struct _MetaCompositor
 };
 
 /* Wait 2ms after vblank before starting to draw next frame */
-#define META_SYNC_DELAY 0
+#define META_SYNC_DELAY 2
 
 CoglContext * meta_compositor_get_cogl_context (void);
 
@@ -83,8 +83,5 @@ void meta_compositor_grab_op_begin (MetaCompositor *compositor);
 void meta_compositor_grab_op_end (MetaCompositor *compositor);
 
 void meta_check_end_modal (MetaScreen *screen);
-
-void meta_compositor_update_sync_state (MetaCompositor *compositor,
-                                        MetaSyncMethod  method);
 
 #endif /* META_COMPOSITOR_PRIVATE_H */

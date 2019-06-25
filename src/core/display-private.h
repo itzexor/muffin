@@ -304,7 +304,6 @@ struct _MetaDisplay
 #define META_DISPLAY_HAS_COMPOSITE(display) ((display)->have_composite)
 #define META_DISPLAY_HAS_DAMAGE(display) ((display)->have_damage)
 #define META_DISPLAY_HAS_XFIXES(display) ((display)->have_xfixes)
-  MetaSyncMethod sync_method;
 
   guint shadows_enabled : 1;
   guint debug_button_grabs : 1;

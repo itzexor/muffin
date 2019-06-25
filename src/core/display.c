@@ -548,8 +548,6 @@ meta_display_open (void)
 
   the_display->rebuild_keybinding_idle_id = 0;
 
-  the_display->sync_method = meta_prefs_get_sync_method();
-
   /* FIXME copy the checks from GDK probably */
   the_display->static_gravity_works = g_getenv ("MUFFIN_USE_STATIC_GRAVITY") != NULL;
 
@@ -5731,10 +5729,4 @@ meta_display_restart (MetaDisplay *display)
   g_idle_add_full (G_PRIORITY_LOW,
                    (GSourceFunc) meta_display_restart_internal,
                    display, NULL);
-}
-
-void
-meta_display_update_sync_state (MetaSyncMethod method)
-{
-  meta_compositor_update_sync_state (the_display->compositor, method);
 }

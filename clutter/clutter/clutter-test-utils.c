@@ -62,11 +62,6 @@ clutter_test_init (int    *argc,
     }
 #endif
 
-  /* we explicitly disable the synchronisation to the vertical refresh
-   * rate, and run the master clock using a 60 fps timer instead.
-   */
-  _clutter_set_sync_to_vblank (FALSE);
-
   /* perform the actual initialization */
   g_assert (clutter_init (NULL, NULL) == CLUTTER_INIT_SUCCESS);
 

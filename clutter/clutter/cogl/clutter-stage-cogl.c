@@ -175,6 +175,7 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   if (stage_cogl->update_time != -1)
     return;
 
+  stage_cogl->last_sync_delay = sync_delay;
   now = g_get_monotonic_time ();
 
   if (sync_delay < 0)
@@ -183,45 +184,61 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
       return;
     }
 
-  /* We only extrapolate presentation times for 150ms  - this is somewhat
-   * arbitrary. The reasons it might not be accurate for larger times are
-   * that the refresh interval might be wrong or the vertical refresh
-   * might be downclocked if nothing is going on onscreen.
-   */
-  if (stage_cogl->last_presentation_time == 0||
-      stage_cogl->last_presentation_time < now - 150000)
+  refresh_rate = stage_cogl->refresh_rate;
+  if (refresh_rate <= 0.0)
+    refresh_rate = clutter_get_default_frame_rate ();
+
+  refresh_interval = (gint64) (0.5 + G_USEC_PER_SEC / refresh_rate);
+  if (refresh_interval == 0)
     {
       stage_cogl->update_time = now;
       return;
     }
 
-  refresh_rate = stage_cogl->refresh_rate;
-  if (refresh_rate == 0.0)
-    refresh_rate = 60.0;
-
-  refresh_interval = (gint64) (0.5 + 1000000 / refresh_rate);
-  if (refresh_interval == 0)
-    refresh_interval = 16667; /* 1/60th second */
-
   min_render_time_allowed = refresh_interval / 2;
   max_render_time_allowed = refresh_interval - 1000 * sync_delay;
 
+  /* Be robust in the case of incredibly bogus refresh rate */
+  if (max_render_time_allowed <= 0)
+    {
+      g_warning ("Unsupported monitor refresh rate detected. "
+                 "(Refresh rate: %.3f, refresh interval: %ld)",
+                 refresh_rate,
+                 refresh_interval);
+      stage_cogl->update_time = now;
+      return;
+    }
   if (min_render_time_allowed > max_render_time_allowed)
     min_render_time_allowed = max_render_time_allowed;
 
   next_presentation_time = stage_cogl->last_presentation_time + refresh_interval;
 
+  /* Get next_presentation_time closer to its final value, to reduce
+   * the number of while iterations below.
+   */
+  if (next_presentation_time < now)
+    {
+      int64_t last_virtual_presentation_time = now - now % refresh_interval;
+      int64_t hardware_clock_phase =
+        stage_cogl->last_presentation_time % refresh_interval;
+      next_presentation_time =
+        last_virtual_presentation_time + hardware_clock_phase;
+    }
   while (next_presentation_time < now + min_render_time_allowed)
     next_presentation_time += refresh_interval;
 
   stage_cogl->update_time = next_presentation_time - max_render_time_allowed;
 
+  if (stage_cogl->update_time == stage_cogl->last_update_time)
+    stage_cogl->update_time = stage_cogl->last_update_time + refresh_interval;
 }
 
 static gint64
 clutter_stage_cogl_get_update_time (ClutterStageWindow *stage_window)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  if (stage_cogl->pending_swaps)
+    return -1; /* in the future, indefinite */
 
   return stage_cogl->update_time;
 }
@@ -657,9 +674,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           if (valid_buffer_age (view_cogl, age))
             {
               cairo_rectangle_int_t damage_region;
-
-              if (age > stage_cogl->max_buffer_age)
-                stage_cogl->max_buffer_age = age;
 
               *current_fb_damage = fb_clip_region;
 
