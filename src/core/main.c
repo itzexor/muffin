@@ -630,9 +630,6 @@ prefs_changed_callback (MetaPreference pref,
       meta_display_set_cursor_theme (meta_prefs_get_cursor_theme (),
 				     meta_prefs_get_cursor_size ());
       break;
-    case META_PREF_SYNC_TO_VBLANK:
-      meta_display_update_sync_state (meta_prefs_get_sync_to_vblank());
-      break;
     case META_PREF_UI_SCALE:
       meta_ui_set_current_theme (meta_prefs_get_theme (), TRUE);
       meta_display_retheme_all ();
