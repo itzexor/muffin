@@ -99,7 +99,7 @@ static CDesktopTitlebarScrollAction action_scroll_titlebar = C_DESKTOP_TITLEBAR_
 static gboolean dynamic_workspaces = FALSE;
 static gboolean unredirect_fullscreen_windows = FALSE;
 static gboolean desktop_effects = TRUE;
-static MetaSyncMethod sync_method = META_SYNC_PRESENTATION_TIME;
+static gboolean sync_to_vblank = TRUE;
 static gboolean threaded_swap = TRUE;
 static gboolean send_frame_timings = TRUE;
 static gboolean application_based = FALSE;
@@ -296,13 +296,6 @@ static MetaEnumPreference preferences_enum[] =
       },
       &background_transition,
     },
-    {
-      { "sync-method",
-        SCHEMA_MUFFIN,
-        META_PREF_SYNC_METHOD,
-      },
-      &sync_method,
-    },
     { { NULL, 0, 0 }, NULL },
   };
 
@@ -363,6 +356,13 @@ static MetaBoolPreference preferences_bool[] =
         META_PREF_DESKTOP_EFFECTS,
       },
       &desktop_effects,
+    },
+    {
+      { "sync-to-vblank",
+        SCHEMA_MUFFIN,
+        META_PREF_SYNC_TO_VBLANK,
+      },
+      &sync_to_vblank,
     },
     {
       { "threaded-swap",
@@ -1792,10 +1792,10 @@ meta_prefs_get_desktop_effects (void)
   return desktop_effects;
 }
 
-MetaSyncMethod
-meta_prefs_get_sync_method (void)
+gboolean
+meta_prefs_get_sync_to_vblank (void)
 {
-  return sync_method;
+  return sync_to_vblank;
 }
 
 gboolean
@@ -1945,8 +1945,8 @@ meta_preference_to_string (MetaPreference pref)
     case META_PREF_UNREDIRECT_FULLSCREEN_WINDOWS:
       return "UNREDIRECT_FULLSCREEN_WINDOWS";
 
-    case META_PREF_SYNC_METHOD:
-      return "SYNC_METHOD";
+    case META_PREF_SYNC_TO_VBLANK:
+      return "SYNC_TO_VBLANK";
 
     case META_PREF_THREADED_SWAP:
       return "THREADED_SWAP";
